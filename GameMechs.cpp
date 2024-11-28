@@ -2,7 +2,7 @@
 
 GameMechs::GameMechs()
 {
-    
+
 }
 
 GameMechs::GameMechs(int boardX, int boardY)
@@ -18,23 +18,23 @@ GameMechs::~GameMechs()
 
 bool GameMechs::getExitFlagStatus() const
 {
-
+    return false; 
 }
 
 bool GameMechs::getLoseFlagStatus() const
 {
-
+    return false; 
 }
     
 
 char GameMechs::getInput() const
 {
-
+    return '\0';
 }
 
 int GameMechs::getScore() const
 {
-
+    return 0; 
 }
 
 void GameMechs::incrementScore()
@@ -44,12 +44,12 @@ void GameMechs::incrementScore()
 
 int GameMechs::getBoardSizeX() const
 {
-
+    return 20; 
 }
 
 int GameMechs::getBoardSizeY() const
 {
-
+    return 10; 
 }
 
 
