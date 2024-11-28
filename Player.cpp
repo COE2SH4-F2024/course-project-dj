@@ -7,6 +7,10 @@ Player::Player(GameMechs* thisGMRef)
     myDir = STOP;
 
     // more actions to be included
+
+    // int boardCenterX = mainGameMechsRef->getBoardSizeX() / 2; 
+    // int boardCenterY = mainGameMechsRef->getBoardSizeY() / 2; 
+    // playerPos.setObjPos(boardCenterX, boardCenterY, '*'); 
 }
 
 
@@ -17,11 +21,12 @@ Player::~Player()
 
 objPos Player::getPlayerPos() const
 {
+    // return playerPos;
     // return the reference to the playerPos arrray list
 }
 
 void Player::updatePlayerDir()
-{
+{ 
         // PPA3 input processing logic          
 }
 

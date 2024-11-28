@@ -4,9 +4,9 @@
 
 using namespace std;
 
-#define DELAY_CONST 100000
+#define DELAY_CONST 100
 
-bool exitFlag;
+GameMechs *myGM;
 
 void Initialize(void);
 void GetInput(void);
@@ -22,7 +22,7 @@ int main(void)
 
     Initialize();
 
-    while(exitFlag == false)  
+    while(myGM->getExitFlagStatus() == false)  
     {
         GetInput();
         RunLogic();
@@ -40,7 +40,8 @@ void Initialize(void)
     MacUILib_init();
     MacUILib_clearScreen();
 
-    exitFlag = false;
+    myGM = new GameMechs();
+    myPlayer = new Player(myGM);
 }
 
 void GetInput(void)
@@ -67,6 +68,22 @@ void LoopDelay(void)
 void CleanUp(void)
 {
     MacUILib_clearScreen();    
+
+    if (myGM->getLoseFlagStatus()) // Player lost the game
+    {
+        cout << "Game Over! You lost. Better luck next time!\n";
+    }
+    else if (myGM->getExitFlagStatus()) // Player quit the game
+    {
+        cout << "You quit the game. Thank you for playing!\n";
+    }
+    else // If neither losing nor quitting, assume victory
+    {
+        cout << "Congratulations! You won the game!\n";
+    }
+
+    // delete myPlayer;
+    delete myGM;
 
     MacUILib_uninit();
 }
