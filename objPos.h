@@ -37,3 +37,8 @@ class objPos
 };
 
 #endif
+
+ /*
+    objPos(objPos&& other); 
+    objPos& operator=(objPos&& other); 
+*/

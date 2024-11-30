@@ -51,12 +51,50 @@ void GetInput(void)
 
 void RunLogic(void)
 {
-    
+    playerPtr->updatePlayerDir();
+    playerPtr->movePlayer();
 }
 
 void DrawScreen(void)
 {
     MacUILib_clearScreen();    
+    int i, j;
+    int boardWidth = 20;
+    int boardHeight = 10;
+    
+    for (j = 0; j < boardWidth + 2; j++) {
+        MacUILib_printf("#");
+    }
+    MacUILib_printf("\n");
+
+    objPos playerPos = playerPtr->getPlayerPos();
+    int playerX = playerPos.getObjPos().pos->x;
+    int playerY = playerPos.getObjPos().pos->y;
+    char playerSymbol = playerPos.getSymbol();
+    
+    objPos randomcharone(5, 5, 'A');
+    objPos randomchartwo(2, 7, 'C');
+    
+    for (i = 0; i < boardHeight; i++) {
+        MacUILib_printf("#");
+        for (j = 0; j < boardWidth; j++) {
+            if (i == playerY && j == playerX) {
+                MacUILib_printf("%c", playerSymbol);
+            } else if (i == randomcharone.getObjPos().pos->y && j == randomcharone.getObjPos().pos->x) {
+                MacUILib_printf("%c", randomcharone.getSymbol());
+            } else if (i == randomchartwo.getObjPos().pos->y && j == randomchartwo.getObjPos().pos->x) {
+                MacUILib_printf("%c", randomchartwo.getSymbol());
+            } else {
+                MacUILib_printf(" ");
+            }
+        }
+        MacUILib_printf("#\n");
+    }
+
+    for (j = 0; j < boardWidth + 2; j++) {
+        MacUILib_printf("#");
+    }
+    MacUILib_printf("\n");
 }
 
 void LoopDelay(void)
