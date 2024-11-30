@@ -1,153 +1,14 @@
 #include <iostream>
-#include "MacUILib.h" 
+#include "MacUILib.h"
+#include "objPos.h"
+#include "GameMechs.h"
+#include "Player.h"
 
 using namespace std;
 
-#define DELAY_CONST 100000
+#define DELAY_CONST 100
 
-struct Pos {
-    int x, y;
-};
-
-class objPos {
-public:
-    Pos* pos;
-    char symbol;
-
-    objPos() {
-        pos = new Pos;
-        pos->x = 0;
-        pos->y = 0;
-        symbol = '*';
-    }
-
-    objPos(int xPos, int yPos, char sym) {
-        pos = new Pos;
-        pos->x = xPos;
-        pos->y = yPos;
-        symbol = sym;
-    }
-
-    ~objPos() {
-        delete pos;
-    }
-
-    objPos(const objPos& other) {
-        pos = new Pos;
-        pos->x = other.pos->x;
-        pos->y = other.pos->y;
-        symbol = other.symbol;
-    }
-
-    void setObjPos(int xPos, int yPos, char sym) {
-        pos->x = xPos;
-        pos->y = yPos;
-        symbol = sym;
-    }
-
-    objPos getObjPos() const {
-        return *this;
-    }
-
-    char getSymbol() const {
-        return symbol;
-    }
-};
-
-class GameMechs {
-public:
-    int boardWidth;
-    int boardHeight;
-
-    GameMechs(int width, int height) : boardWidth(width), boardHeight(height) {}
-
-    int getBoardSizeX() const { return boardWidth; }
-    int getBoardSizeY() const { return boardHeight; }
-
-    char getInput() {
-        return MacUILib_getChar();
-    }
-
-    void clearInput() {
-    }
-};
-
-class Player {
-public:
-    enum Dir { UP, DOWN, LEFT, RIGHT, STOP };
-
-    Player(GameMechs* thisGMRef) {
-        mainGameMechsRef = thisGMRef;
-        myDir = STOP;
-        int boardCenterX = mainGameMechsRef->getBoardSizeX() / 2;
-        int boardCenterY = mainGameMechsRef->getBoardSizeY() / 2;
-        playerPos.setObjPos(boardCenterX, boardCenterY, '*');
-    }
-
-    ~Player() {}
-
-    objPos getPlayerPos() const { return playerPos; }
-
-    void updatePlayerDir() {
-        char input = mainGameMechsRef->getInput();
-        switch(input) {
-            case ' ':
-                myDir = STOP;
-                break;
-            case 'w':
-                if (myDir != DOWN) myDir = UP;
-                break;
-            case 's':
-                if (myDir != UP) myDir = DOWN;
-                break;
-            case 'a':
-                if (myDir != RIGHT) myDir = LEFT;
-                break;
-            case 'd':
-                if (myDir != LEFT) myDir = RIGHT;
-                break;
-            default:
-                break;
-        }
-        mainGameMechsRef->clearInput();
-    }
-
-    void movePlayer() {
-        if(myDir == STOP) return;
-
-        int x = playerPos.getObjPos().pos->x;
-        int y = playerPos.getObjPos().pos->y;
-        int boardWidth = mainGameMechsRef->getBoardSizeX();
-        int boardHeight = mainGameMechsRef->getBoardSizeY();
-
-        switch(myDir) {
-            case UP:
-                y = (y - 1 + boardHeight) % boardHeight;
-                break;
-            case DOWN:
-                y = (y + 1) % boardHeight;
-                break;
-            case LEFT:
-                x = (x - 1 + boardWidth) % boardWidth;
-                break;
-            case RIGHT:
-                x = (x + 1) % boardWidth;
-                break;
-            default:
-                break;
-        }
-
-        playerPos.setObjPos(x, y, '*');
-    }
-
-private:
-    objPos playerPos;
-    Dir myDir;
-    GameMechs* mainGameMechsRef;
-};
-
-bool exitFlag;
-Player* playerPtr = nullptr; 
+GameMechs *myGM;
 
 void Initialize(void);
 void GetInput(void);
@@ -156,10 +17,15 @@ void DrawScreen(void);
 void LoopDelay(void);
 void CleanUp(void);
 
-int main(void) {
+Player* playerPtr = nullptr; 
+
+int main(void)
+{
+
     Initialize();
 
-    while(exitFlag == false) {
+    while(myGM->getExitFlagStatus() == false)  
+    {
         GetInput();
         RunLogic();
         DrawScreen();
@@ -167,29 +33,34 @@ int main(void) {
     }
 
     CleanUp();
+
 }
 
-void Initialize(void) {
+
+void Initialize(void)
+{
     MacUILib_init();
     MacUILib_clearScreen();
 
-    exitFlag = false;
-    int boardWidth = 20;
-    int boardHeight = 10;
-    GameMechs* gameMechs = new GameMechs(boardWidth, boardHeight);
-    playerPtr = new Player(gameMechs);
+    myGM = new GameMechs();
+    Food* foodPtr = new Food(); 
+    playerPtr = new Player(myGM, foodPtr);
 }
 
-void GetInput(void) {
+void GetInput(void)
+{
+   
 }
 
-void RunLogic(void) {
+void RunLogic(void)
+{
     playerPtr->updatePlayerDir();
     playerPtr->movePlayer();
 }
 
-void DrawScreen(void) {
-    MacUILib_clearScreen();
+void DrawScreen(void)
+{
+    MacUILib_clearScreen();    
     int i, j;
     int boardWidth = 20;
     int boardHeight = 10;
@@ -229,11 +100,31 @@ void DrawScreen(void) {
     MacUILib_printf("\n");
 }
 
-void LoopDelay(void) {
-    MacUILib_Delay(DELAY_CONST);  
+void LoopDelay(void)
+{
+    MacUILib_Delay(DELAY_CONST); // 0.1s delay
 }
 
-void CleanUp(void) {
-    MacUILib_clearScreen();
+
+void CleanUp(void)
+{
+    MacUILib_clearScreen();    
+
+    if (myGM->getLoseFlagStatus()) // Player lost the game
+    {
+        cout << "Game Over! You lost. Better luck next time!\n";
+    }
+    else if (myGM->getExitFlagStatus()) // Player quit the game
+    {
+        cout << "You quit the game. Thank you for playing!\n";
+    }
+    else // If neither losing nor quitting, assume victory
+    {
+        cout << "Congratulations! You won the game!\n";
+    }
+
+    // delete myPlayer;
+    delete myGM;
+
     MacUILib_uninit();
 }

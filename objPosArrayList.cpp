@@ -1,4 +1,10 @@
+
 #include "objPosArrayList.h"
+
+// Paste your Tested implementation here.
+// Paste your Tested implementation here.
+// Paste your Tested implementation here.
+
 #include <iostream>
 objPosArrayList::objPosArrayList()
 {
@@ -78,10 +84,8 @@ objPos objPosArrayList::getTailElement() const {
     if (listSize > 0) {
         return aList[listSize - 1]; 
     } else {
-        std::cout<<"List is empty";
+        throw std::out_of_range("List is empty"); 
+        return objPos(); 
+        //std::cout<<"List is empty";
     }
 }
-
-// Paste your Tested implementation here.
-// Paste your Tested implementation here.
-// Paste your Tested implementation here.
