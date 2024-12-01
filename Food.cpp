@@ -15,7 +15,7 @@ Food::~Food()
     // No dynamic memory used here
 }
 
-objPos& Food::getFoodPos(){
+objPos Food::getFoodPos() const{
     return foodPos; 
 }
 
@@ -36,14 +36,14 @@ void Food::generateFood(const objPosArrayList& playerPosList)
         isValid = true; 
         int i; 
         for(i = 0; i < playerPosList.getSize(); ++i){
-            if(tempPos.isPosEqual(&playerPosList.getElement(i))){
+            objPos element = playerPosList.getElement(i); 
+            if(tempPos.isPosEqual(&element)){
                 isValid = false; 
                 break; 
             }
         }
-
+    }
         // Set the position and symbol for the food
         char symbol = 'F'; 
         foodPos.setObjPos(x, y, symbol); // assign the valid position to the food object
-}
 }

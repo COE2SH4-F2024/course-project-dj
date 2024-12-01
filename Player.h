@@ -22,10 +22,9 @@ class Player
         void updatePlayerDir();
         void movePlayer();
 
-        // Additional methods
-        bool checkFoodConsumption(objPos foodPos);  // Checks if food is consumed
-        void increasePlayerLength();                // Increases the player's length
-        bool checkSelfCollision();                  // Checks if the player collides with itself
+        // New methods
+        bool checkSelfCollision();
+        objPosArrayList* getPlayerPosList() const;
 
     private:
         Food* food; 

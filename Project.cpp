@@ -3,11 +3,13 @@
 #include "objPos.h"
 #include "GameMechs.h"
 #include "Player.h"
+#include "Food.h"
+#include "objPosArrayList.h"
 
 using namespace std;
 
-#define DELAY_CONST 100
-
+#define DELAY_CONST 100000
+Food* foodPtr = NULL; 
 GameMechs *myGM;
 
 void Initialize(void);
@@ -33,6 +35,7 @@ int main(void)
     }
 
     CleanUp();
+    return 0; 
 
 }
 
@@ -43,19 +46,34 @@ void Initialize(void)
     MacUILib_clearScreen();
 
     myGM = new GameMechs();
-    Food* foodPtr = new Food(); 
+    foodPtr = new Food(); 
     playerPtr = new Player(myGM, foodPtr);
+    objPosArrayList playerPosList; 
+    playerPtr->getPlayerPos(); 
+    foodPtr->generateFood(playerPosList); 
 }
 
 void GetInput(void)
 {
-   
+   playerPtr->updatePlayerDir();
 }
 
 void RunLogic(void)
 {
-    playerPtr->updatePlayerDir();
-    playerPtr->movePlayer();
+    playerPtr->movePlayer(); 
+    // playerPtr->updatePlayerDir();
+    // playerPtr->movePlayer();
+    // objPos playerHead = playerPtr->getPlayerPos(); 
+    // objPos foodPos = foodPtr->getFoodPos(); 
+    // if(playerHead.isPosEqual(&foodPos))
+    // {
+    //     objPosArrayList playerPosList; 
+    //     playerPtr->getPlayerPos(); 
+    //     foodPtr->generateFood(playerPosList); 
+    // }
+    if(playerPtr->checkSelfCollision()){
+        myGM->setLoseFlag();
+    }
 }
 
 void DrawScreen(void)
@@ -69,35 +87,76 @@ void DrawScreen(void)
         MacUILib_printf("#");
     }
     MacUILib_printf("\n");
+    objPos foodPos = foodPtr->getFoodPos();
+    objPosArrayList* playerPosList = playerPtr->getPlayerPosList();
 
-    objPos playerPos = playerPtr->getPlayerPos();
-    int playerX = playerPos.getObjPos().pos->x;
-    int playerY = playerPos.getObjPos().pos->y;
-    char playerSymbol = playerPos.getSymbol();
-    
-    objPos randomcharone(5, 5, 'A');
-    objPos randomchartwo(2, 7, 'C');
-    
-    for (i = 0; i < boardHeight; i++) {
+    for (int i = 0; i < boardHeight; i++) {
         MacUILib_printf("#");
-        for (j = 0; j < boardWidth; j++) {
-            if (i == playerY && j == playerX) {
-                MacUILib_printf("%c", playerSymbol);
-            } else if (i == randomcharone.getObjPos().pos->y && j == randomcharone.getObjPos().pos->x) {
-                MacUILib_printf("%c", randomcharone.getSymbol());
-            } else if (i == randomchartwo.getObjPos().pos->y && j == randomchartwo.getObjPos().pos->x) {
-                MacUILib_printf("%c", randomchartwo.getSymbol());
-            } else {
+        for (int j = 0; j < boardWidth; j++) {
+            bool check = false;
+            for (int k = 0; k < playerPosList->getSize(); k++) {
+                objPos currentPart = playerPosList->getElement(k);
+                if (i == currentPart.getObjPos().pos->y && j == currentPart.getObjPos().pos->x) {
+                    MacUILib_printf("%c", currentPart.getSymbol());
+                    check = true;
+                    break;
+                }
+            }
+
+            if (!check && i == foodPos.getObjPos().pos->y && j == foodPos.getObjPos().pos->x) {
+                MacUILib_printf("%c", foodPos.getSymbol());
+                check = true;
+            }
+
+            if (!check) {
                 MacUILib_printf(" ");
             }
         }
         MacUILib_printf("#\n");
     }
 
-    for (j = 0; j < boardWidth + 2; j++) {
+    // Draw bottom border
+    for (int j = 0; j < boardWidth + 2; j++) {
         MacUILib_printf("#");
     }
     MacUILib_printf("\n");
+
+    // Display score
+    MacUILib_printf("Score: %d\n", playerPtr->getScore());
+
+    // objPos playerPos = playerPtr->getPlayerPos();
+    // int playerX = playerPos.getObjPos().pos->x;
+    // int playerY = playerPos.getObjPos().pos->y;
+    // char playerSymbol = playerPos.getSymbol();
+    
+    // // objPos randomcharone(5, 5, 'A');
+    // // objPos randomchartwo(2, 7, 'C');
+    // objPos foodPos = foodPtr->getFoodPos(); 
+    // int foodX = foodPos.getObjPos().pos->x; 
+    // int foodY = foodPos.getObjPos().pos->y; 
+    // char foodSymbol = foodPos.getSymbol(); 
+    // objPosArrayList* playerPosList = playerPtr->getPlayerPosList(); 
+
+    // for (i = 0; i < boardHeight; i++) {
+    //     MacUILib_printf("#");
+    //     for (j = 0; j < boardWidth; j++) {
+    //         if (i == playerY && j == playerX) {
+    //             MacUILib_printf("%c", playerSymbol);
+    //         } else if (i == foodY && j == foodX) {
+    //             MacUILib_printf("%c", foodSymbol);
+    //         // } else if (i == randomchartwo.getObjPos().pos->y && j == randomchartwo.getObjPos().pos->x) {
+    //         //     MacUILib_printf("%c", randomchartwo.getSymbol());
+    //         } else {
+    //             MacUILib_printf(" ");
+    //         }
+    //     }
+    //     MacUILib_printf("#\n");
+    // }
+
+    // for (j = 0; j < boardWidth + 2; j++) {
+    //     MacUILib_printf("#");
+    // }
+    // MacUILib_printf("\n");
 }
 
 void LoopDelay(void)
@@ -110,21 +169,23 @@ void CleanUp(void)
 {
     MacUILib_clearScreen();    
 
-    if (myGM->getLoseFlagStatus()) // Player lost the game
+    if (myGM->getLoseFlagStatus()) 
     {
-        cout << "Game Over! You lost. Better luck next time!\n";
+        MacUILib_printf( "You lost\n");
     }
-    else if (myGM->getExitFlagStatus()) // Player quit the game
+    else if (myGM->getExitFlagStatus()) 
     {
-        cout << "You quit the game. Thank you for playing!\n";
+        MacUILib_printf("You quit\n");
     }
-    else // If neither losing nor quitting, assume victory
+    else 
     {
-        cout << "Congratulations! You won the game!\n";
+        MacUILib_printf("You won\n");
     }
 
     // delete myPlayer;
     delete myGM;
+    delete foodPtr;
+    delete playerPtr; 
 
     MacUILib_uninit();
 }

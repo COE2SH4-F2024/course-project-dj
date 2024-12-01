@@ -4,7 +4,6 @@
 #include "objPos.h"
 // #include "GameMechs.h"
 class objPosArrayList; 
-using namespace std;
 
 class Food
 {
@@ -15,8 +14,8 @@ class Food
     Food(); // Default Constructor
     ~Food(); // Deconstructor
     
-    void generateFood(const objPosArrayList& snakeBody);
-    const objPos& getFoodPos() const;
+    void generateFood(const objPosArrayList& playerPosList);
+    objPos getFoodPos() const;
 };
 
 #endif
