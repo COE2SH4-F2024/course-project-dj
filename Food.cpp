@@ -7,43 +7,67 @@
 
 Food::Food() // Default Constructor
 {
-    foodPos.setObjPos(0, 0, '\0');
+    // Initialize the food bucket on the heap
+    foodBucket = new objPosArrayList();
 }
 
 Food::~Food()
 {
-    // No dynamic memory used here
+    delete foodBucket;
 }
 
-objPos Food::getFoodPos() const{
+/* objPos Food::getFoodPos() const{
     return foodPos; 
 }
+*/
 
-void Food::generateFood(const objPosArrayList& playerPosList)
+void Food::generateFood(const objPosArrayList& playerPosList, int numFood)
 {
     srand(time(NULL));
 
-    int x, y;
-    bool isValid = false; // assume position is invalid
-
-    while (!isValid)
+    for (int i = 0; i < numFood; ++i)
     {
-        x = rand() % (18) + 1; // random number between 1 and 18 for the x values (no food on border)
-        y = rand() % (8) + 1; // between 1 and 8 for y
+        int x, y;
+        bool isValid = false;
 
-        // Use a temporary objPos object for comparison
-        objPos tempPos(x, y, 'F');
-        isValid = true; 
-        int i; 
-        for(i = 0; i < playerPosList.getSize(); ++i){
-            objPos element = playerPosList.getElement(i); 
-            if(tempPos.isPosEqual(&element)){
-                isValid = false; 
-                break; 
+        while (!isValid)
+        {
+            x = rand() % 18 + 1; // Random x-coordinate (avoiding borders)
+            y = rand() % 8 + 1;  // Random y-coordinate (avoiding borders)
+
+            objPos tempPos(x, y, '\0');
+            isValid = true;
+
+            // Ensure no overlap with the player's position or other food items
+            for (int j = 0; j < playerPosList.getSize(); ++j)
+            {
+                if (tempPos.isPosEqual(&playerPosList.getElement(j)))
+                {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            for (int j = 0; j < foodBucket->getSize(); ++j)
+            {
+                if (tempPos.isPosEqual(&foodBucket->getElement(j)))
+                {
+                    isValid = false;
+                    break;
+                }
             }
         }
+
+        // Assign a symbol to the food 
+        char symbol = (i % 3 == 0) ? 'S' : 'F'; // Every third item is special ('S')
+
+        // Add food to bucket
+        objPos newFood(x, y, symbol);
+        foodBucket->addToHead(newFood);
     }
-        // Set the position and symbol for the food
-        char symbol = 'F'; 
-        foodPos.setObjPos(x, y, symbol); // assign the valid position to the food object
+}
+
+objPosArrayList* Food::getFoodBucket() const
+{
+    return foodBucket;
 }
