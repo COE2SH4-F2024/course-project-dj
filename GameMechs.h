@@ -9,8 +9,11 @@
 class objPosArrayList; 
 using namespace std;
 
+//Declaring the class and functions 
+
 class GameMechs
 {
+    //Only accessible within the class 
     private:
         char input;
         bool exitFlag;
@@ -22,10 +25,12 @@ class GameMechs
 
         Food food;
 
+
+    //accessible within the entire program
     public:
         GameMechs();
         GameMechs(int boardX, int boardY);
-        ~GameMechs(); // is this one needed at all? Why or why not?
+        ~GameMechs(); //Not needed 
         
         bool getExitFlagStatus() const; 
         void setExitTrue();

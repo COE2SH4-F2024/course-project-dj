@@ -2,6 +2,7 @@
 #include "GameMechs.h"
 #include "objPosArrayList.h"
 
+//Constructor to initialize the player object 
 Player::Player(GameMechs* thisGMRef, Food* foodRef)
 {
     mainGameMechsRef = thisGMRef;
@@ -18,22 +19,23 @@ Player::Player(GameMechs* thisGMRef, Food* foodRef)
 
 }
 
+//Destructor 
 Player::~Player()
 {
-    // Clean up the dynamically allocated playerPosList
     delete playerPosList;
 }
-
+//Return current position of the player 
 objPos Player::getPlayerPos() const
 {
     return playerPosList->getHeadElement(); 
 }
 
+//Update the players direction based on input 
 void Player::updatePlayerDir()
 { 
     char input = mainGameMechsRef->getInput(); 
 
-    switch(input) 
+    switch(input) //Switches between different viable user inputs 
     {                      
         case ' ':  
             myDir = STOP; 
@@ -64,20 +66,21 @@ void Player::updatePlayerDir()
     mainGameMechsRef->clearInput();    
 }
 
+//Move the player based on direction 
 void Player::movePlayer()
 {
     if(myDir == STOP){
         return; 
     }
 
-    objPos headPos = playerPosList->getHeadElement(); 
+    objPos headPos = playerPosList->getHeadElement(); //Get the current head position
 
-    int x = headPos.pos->x; 
+    int x = headPos.pos->x;  //Get the x and y positions of the head 
     int y = headPos.pos->y; 
     int boardWidth = mainGameMechsRef->getBoardSizeX(); 
     int boardHeight = mainGameMechsRef->getBoardSizeY(); 
 
-    switch(myDir){ 
+    switch(myDir){  //Moves the player based on the directions 
         case UP: 
             y = (y - 1 + boardHeight) % boardHeight; 
             break; 
@@ -95,12 +98,11 @@ void Player::movePlayer()
         default:
             break;
     }
-
-    // Create a new objPos for the new head position
+    //Create a new position for the head 
     objPos newHeadPos(x, y, '*');
-    objPos foodPos = food->getFoodPos(); 
+    objPos foodPos = food->getFoodPos(); //Get the position of the food 
     int i; 
-    for(i = 1; i <playerPosList->getSize(); i++){
+    for(i = 1; i <playerPosList->getSize(); i++){ //Check for collisions 
         objPos bodySegment = playerPosList->getElement(i); 
         if(newHeadPos.isPosEqual(&bodySegment)){
             mainGameMechsRef->setLoseFlag(); 
@@ -108,22 +110,21 @@ void Player::movePlayer()
             return; 
         }
     }
-    if (newHeadPos.isPosEqual(&foodPos)){
-        playerPosList->insertHead(newHeadPos);
-        mainGameMechsRef->incrementScore();
-        food->generateFood(*playerPosList); 
+    if (newHeadPos.isPosEqual(&foodPos)){ //Check if there is food eaten 
+        playerPosList->insertHead(newHeadPos); //Add the new position to the list 
+        mainGameMechsRef->incrementScore(); //Increase the score 
+        food->generateFood(*playerPosList); //Generate new food 
     }else{
         playerPosList->insertHead(newHeadPos);
-        playerPosList->removeTail(); 
+        playerPosList->removeTail(); //In the event that food has not been eaten, the player head moves forward while the current tail gets deleted
     }
 }
 
-bool Player::checkSelfCollision()
+bool Player::checkSelfCollision() //Checks if the snakje collides with itself
 {
     objPos head = playerPosList->getHeadElement();
 
-    // Check if head collides with any other body segment
-    for (int i = 1; i < playerPosList->getSize(); i++)
+    for (int i = 1; i < playerPosList->getSize(); i++) //Checks if it collided with any part of the snake 
     {
         objPos bodySegment = playerPosList->getElement(i);
         if (head.isPosEqual(&bodySegment))
@@ -135,14 +136,14 @@ bool Player::checkSelfCollision()
     return false;
 }
 
-int Player::getScore() const{
+int Player::getScore() const{ //Gets the players score 
     return playerPosList->getSize() - 1; 
 }
 
-GameMechs* Player::getGameMechs() const {
+GameMechs* Player::getGameMechs() const { //Returns a referene to gameMechs object 
     return mainGameMechsRef; 
 }
 
-objPosArrayList* Player::getPlayerPosList() const {
+objPosArrayList* Player::getPlayerPosList() const { //Returns a reference to the player position list 
     return playerPosList;
 }
