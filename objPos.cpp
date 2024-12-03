@@ -80,20 +80,21 @@ objPos::~objPos()
     pos = NULL;
 }
 
+//Setting the position and symbol of object without any initial parameters
 void objPos::setObjPos(objPos o)
 {
     pos->x = o.pos->x;
     pos->y = o.pos->y;
     symbol = o.symbol;
 }
-
+//Setting the poition and the symbol of object with initial parameters
 void objPos::setObjPos(int xPos, int yPos, char sym)
 {
     pos->x = xPos;
     pos->y = yPos;
     symbol = sym;
 }
-
+//Rreturning all the qualities of the object 
 objPos objPos::getObjPos() const
 {
     objPos returnPos;
@@ -103,17 +104,18 @@ objPos objPos::getObjPos() const
     
     return returnPos;
 }
-
+//Returning just the symbol of the object 
 char objPos::getSymbol() const
 {
     return symbol;
 }
-
+//Checking if the current psoition of the symbol is equal to another item 
 bool objPos::isPosEqual(const objPos* refPos) const
 {
     return (refPos->pos->x == pos->x && refPos->pos->y == pos->y);
 }
 
+//Returning the symbol of the one matched with the previous one 
 char objPos::getSymbolIfPosEqual(const objPos* refPos) const
 {
     if(isPosEqual(refPos))

@@ -9,9 +9,13 @@
 using namespace std;
 
 #define DELAY_CONST 100000
+
+//Global poiunters
 Food* foodPtr = NULL; 
 GameMechs *myGM;
 
+
+//Function prototypes from previous files 
 void Initialize(void);
 void GetInput(void);
 void RunLogic(void);
@@ -21,6 +25,7 @@ void CleanUp(void);
 
 Player* playerPtr = nullptr; 
 
+//Main function (looping for contionious updating) 
 int main(void)
 {
 
@@ -39,7 +44,7 @@ int main(void)
 
 }
 
-
+//Initializing the game 
 void Initialize(void)
 {
     MacUILib_init();
@@ -52,30 +57,22 @@ void Initialize(void)
     playerPtr->getPlayerPos(); 
     foodPtr->generateFood(playerPosList); 
 }
-
+//Captures the player's input and updates direction based on that 
 void GetInput(void)
 {
    playerPtr->updatePlayerDir();
 }
 
+//Game logic (moving the player, checking for self collision)
 void RunLogic(void)
 {
     playerPtr->movePlayer(); 
-    // playerPtr->updatePlayerDir();
-    // playerPtr->movePlayer();
-    // objPos playerHead = playerPtr->getPlayerPos(); 
-    // objPos foodPos = foodPtr->getFoodPos(); 
-    // if(playerHead.isPosEqual(&foodPos))
-    // {
-    //     objPosArrayList playerPosList; 
-    //     playerPtr->getPlayerPos(); 
-    //     foodPtr->generateFood(playerPosList); 
-    // }
     if(playerPtr->checkSelfCollision()){
         myGM->setLoseFlag();
     }
 }
 
+//Drawing the entire board and elements within it  
 void DrawScreen(void)
 {
     MacUILib_clearScreen();    
@@ -83,36 +80,39 @@ void DrawScreen(void)
     int boardWidth = 20;
     int boardHeight = 10;
     
+    //Drawing top border
     for (j = 0; j < boardWidth + 2; j++) {
         MacUILib_printf("#");
     }
     MacUILib_printf("\n");
-    objPos foodPos = foodPtr->getFoodPos();
-    objPosArrayList* playerPosList = playerPtr->getPlayerPosList();
+    objPos foodPos = foodPtr->getFoodPos(); //Getting food position
+    objPosArrayList* playerPosList = playerPtr->getPlayerPosList(); //Getting snakes position list 
 
+    //Drawing the game board 
     for (int i = 0; i < boardHeight; i++) {
         MacUILib_printf("#");
         for (int j = 0; j < boardWidth; j++) {
             bool check = false;
+            //Checking if the current position matches any part of the snake 
             for (int k = 0; k < playerPosList->getSize(); k++) {
                 objPos currentPart = playerPosList->getElement(k);
                 if (i == currentPart.getObjPos().pos->y && j == currentPart.getObjPos().pos->x) {
-                    MacUILib_printf("%c", currentPart.getSymbol());
+                    MacUILib_printf("%c", currentPart.getSymbol()); //Drawing the snake segments in a loop 
                     check = true;
                     break;
                 }
             }
-
+            //Checking thew possibilioty if the current position matches the food 
             if (!check && i == foodPos.getObjPos().pos->y && j == foodPos.getObjPos().pos->x) {
-                MacUILib_printf("%c", foodPos.getSymbol());
+                MacUILib_printf("%c", foodPos.getSymbol()); //Draws the food 
                 check = true;
             }
-
+            //Empty space if no match 
             if (!check) {
                 MacUILib_printf(" ");
             }
         }
-        MacUILib_printf("#\n");
+        MacUILib_printf("#\n"); //Right border
     }
 
     // Draw bottom border
@@ -123,48 +123,14 @@ void DrawScreen(void)
 
     // Display score
     MacUILib_printf("Score: %d\n", playerPtr->getScore());
-
-    // objPos playerPos = playerPtr->getPlayerPos();
-    // int playerX = playerPos.getObjPos().pos->x;
-    // int playerY = playerPos.getObjPos().pos->y;
-    // char playerSymbol = playerPos.getSymbol();
-    
-    // // objPos randomcharone(5, 5, 'A');
-    // // objPos randomchartwo(2, 7, 'C');
-    // objPos foodPos = foodPtr->getFoodPos(); 
-    // int foodX = foodPos.getObjPos().pos->x; 
-    // int foodY = foodPos.getObjPos().pos->y; 
-    // char foodSymbol = foodPos.getSymbol(); 
-    // objPosArrayList* playerPosList = playerPtr->getPlayerPosList(); 
-
-    // for (i = 0; i < boardHeight; i++) {
-    //     MacUILib_printf("#");
-    //     for (j = 0; j < boardWidth; j++) {
-    //         if (i == playerY && j == playerX) {
-    //             MacUILib_printf("%c", playerSymbol);
-    //         } else if (i == foodY && j == foodX) {
-    //             MacUILib_printf("%c", foodSymbol);
-    //         // } else if (i == randomchartwo.getObjPos().pos->y && j == randomchartwo.getObjPos().pos->x) {
-    //         //     MacUILib_printf("%c", randomchartwo.getSymbol());
-    //         } else {
-    //             MacUILib_printf(" ");
-    //         }
-    //     }
-    //     MacUILib_printf("#\n");
-    // }
-
-    // for (j = 0; j < boardWidth + 2; j++) {
-    //     MacUILib_printf("#");
-    // }
-    // MacUILib_printf("\n");
 }
-
+//Loop delay between updates 
 void LoopDelay(void)
 {
     MacUILib_Delay(DELAY_CONST); // 0.1s delay
 }
 
-
+//Cleans up all resources and endgame results (including ending the game) 
 void CleanUp(void)
 {
     MacUILib_clearScreen();    

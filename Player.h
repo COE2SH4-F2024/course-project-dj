@@ -5,9 +5,9 @@
 #include "objPos.h"
 #include "objPosArrayList.h"
 #include "Food.h"
-
+//Player class
 class Player
-{
+{   //Public functions acccessible throughout the entire code 
     public:
         enum Dir {UP, DOWN, LEFT, RIGHT, STOP};  
 
@@ -25,7 +25,7 @@ class Player
         // New methods
         bool checkSelfCollision();
         objPosArrayList* getPlayerPosList() const;
-
+    //Private elements only accessible in the class 
     private:
         Food* food; 
         objPosArrayList* playerPosList;      
