@@ -1,5 +1,6 @@
 #include "objPos.h"
-
+#include <cstddef>
+// Default Constructor (1/4)
 objPos::objPos()
 {
     pos = new Pos;
@@ -8,6 +9,7 @@ objPos::objPos()
     symbol = 0; //NULL
 }
 
+// Other Constructor
 objPos::objPos(int xPos, int yPos, char sym)
 {
     pos = new Pos;
@@ -19,8 +21,64 @@ objPos::objPos(int xPos, int yPos, char sym)
 // Respect the rule of six / minimum four
 // [TODO] Implement the missing special member functions to meet the minimum four rule
 
+// Copy Constructor (2/4)
+objPos::objPos(const objPos &a)
+{
+    //cout << "Copy Constructor Called\n";
+    symbol = a.symbol;
+    if (a.pos != NULL) 
+    {
+        pos = new Pos; // Allocate new memory for the current object
+        pos->x = a.pos->x; // Copy x-coordinate
+        pos->y = a.pos->y; // Copy y-coordinate
+    } 
+
+    else 
+    {
+        pos = NULL; // Handle the case where the source object's pointer is null
+        // a.pos->x = pos.x;
+        // a.pos->y = pos.y;
+    }
+}
+
+// Copy Assignment Operator (3/4)
+objPos& objPos::operator=(const objPos &a)
+{
+    //cout << "Copy Assignment Operator Called\n";
+
+    if (this == &a) {
+        return *this;
+    }
+
+    // Free the existing memory for `this->pos`
+    delete pos;
+
+    this->symbol = a.symbol; // Copy symbol
+
+    // Deep copy for `pos`
+    if (a.pos != NULL)
+    {
+        pos = new Pos; // Allocate new memory for `this->pos`
+        pos->x = a.pos->x; // Copy x-coordinate
+        pos->y = a.pos->y; // Copy y-coordinate
+    } 
+    
+    else //Might be uneccessary 
+    {
+        pos = NULL; // Handle case where `a.pos` is null
+    }
+
+    return *this; // Return the current object by reference
+    }
 
 
+// Destructor (4/4)
+objPos::~objPos()
+{
+    //cout << "Destructor Called\n";
+    delete pos;
+    pos = NULL;
+}
 
 void objPos::setObjPos(objPos o)
 {
