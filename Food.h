@@ -3,19 +3,18 @@
 
 #include "objPos.h"
 #include "objPosArrayList.h"
-// #include "GameMechs.h"
 
-using namespace std;
+class objPosArrayList; 
 
 class Food
 {
     private:
-    objPos foodPos;
+    objPosArrayList* foodPos;
 
     public:
     Food(); // Default Constructor
     ~Food(); // Deconstructor
     
-    void generateFood(objPos blockOff);
+    void generateFood(const objPosArrayList& playerPosList);
     objPos getFoodPos() const;
 }

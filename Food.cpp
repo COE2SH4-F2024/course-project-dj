@@ -1,6 +1,7 @@
 #include "Food.h"
+#include <cstdlib>
+#include <ctime>
 
-// #include "GameMechs.h"
 #include "objPos.h"
 #include "objPosArrayList.h"
 
@@ -14,7 +15,11 @@ Food::~Food()
     // No dynamic memory used here
 }
 
-void generateFood(objPos blockOff)
+objPos Food::getFoodPos() const{
+    return foodPos; 
+}
+
+void Food::generateFood(const objPosArrayList& playerPosList)
 {
     srand(time(NULL));
 
@@ -27,19 +32,17 @@ void generateFood(objPos blockOff)
         y = rand() % (8) + 1; // between 1 and 8 for y
 
         // Use a temporary objPos object for comparison
-        objPos tempPos(x, y, '\0');
-
-        if(blockOff.isPosEqual(&tempPos))
-        {
-            isValid = false;
-        }
-
-        else
-        {
-            isValid = true;
+        objPos tempPos(x, y, 'F');
+        isValid = true; 
+        int i; 
+        for(i = 0; i < playerPosList.getSize(); ++i){
+            objPos element = playerPosList.getElement(i); 
+            if(tempPos.isPosEqual(&element)){
+                isValid = false; 
+                break; 
+            }
         }
     }
-
         // Set the position and symbol for the food
         char symbol = 'F'; 
         foodPos.setObjPos(x, y, symbol); // assign the valid position to the food object
